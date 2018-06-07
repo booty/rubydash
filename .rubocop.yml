@@ -1,0 +1,23 @@
+inherit_from: .rubocop_todo.yml
+
+Metrics/LineLength:
+  Max: 120
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+  SupportedStyles:
+    - single_quotes
+    - double_quotes
+
+Layout/AccessModifierIndentation:
+  EnforcedStyle: outdent
+
+Metrics/MethodLength:
+  Max: 15
+
+# fight me =)
+Style/Tab:
+  Enabled: false
+
+Layout/IndentationWidth:
+   Width: 1
