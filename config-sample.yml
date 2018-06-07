@@ -1,0 +1,13 @@
+---
+Feeds:
+  My First Feed:
+    Type: gmail
+    AuthKey: 123
+    AuthSecret: ABC
+    MinimumWaitSeconds: 10
+  My Second Feed:
+    Type: rss
+    Url: http://slashdot.org
+    AuthKey: 123
+    AuthSecret: ABC
+    MinimumWaitSeconds: 10
