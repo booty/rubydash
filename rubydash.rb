@@ -4,6 +4,9 @@ require "fileutils"
 require "yaml"
 require "pry-byebug"
 require "titleize"
+require "active_support/all"
+require "action_view"
+require "dotiw"
 
 require_relative "item"
 
@@ -19,19 +22,32 @@ STATE_SCHEMA_VERSION = 1
 
 # Where the magic happens
 class RubyDash
+	include ActionView::Helpers::DateHelper
+
 	def fetch
 		# binding.pry
+		items_by_feed_name = {}
 		@config["Feeds"].each_pair do |name, feed|
 			puts "Fetching feed #{name}"
 			# TODO: get cached version from state, if extant
 			driver = Object.const_get("#{feed['Type'].titleize}Driver").new(feed)
-			foo = driver.fetch_uncached
-			binding.pry
+			items_by_feed_name[name] = driver.fetch_uncached
 		end
+		items_by_feed_name
 	end
 
-	def render
-		raise
+	def render(items_by_feed_name)
+		items_by_feed_name.each do |feed_name, items|
+			puts "--- #{feed_name} ---"
+			items.each do |item|
+				dotiw = distance_of_time_in_words(Time.now,
+																					item.created_at,
+																					compact: true,
+																					highest_measures: 1,
+																					two_words_connector: " ")
+				puts "#{dotiw}"
+			end
+		end
 	end
 
 	def initialize
@@ -105,5 +121,5 @@ private
 end
 
 dashboard = RubyDash.new
-dashboard.fetch
-dashboard.render
+items_by_feed_name = dashboard.fetch
+dashboard.render(items_by_feed_name)

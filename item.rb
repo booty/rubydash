@@ -2,7 +2,7 @@
 
 class RubyDash
 	class Item
-		attr_accessor
+		attr_reader :created_at
 		def initialize(title:, created_at:, read: nil, updated_at: nil, details: nil, icon: nil)
 			@title = title
 			@created_at = created_at

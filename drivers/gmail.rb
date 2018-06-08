@@ -9,7 +9,7 @@ require "fileutils"
 class GmailDriver < Driver
 	OOB_URI = "urn:ietf:wg:oauth:2.0:oob"
 	APPLICATION_NAME = "RubyDash"
-	CREDENTIALS_PATH = "token.yaml"
+	CREDENTIALS_PATH = File.join(DATA_PATH, "token.yml")
 	SCOPE = Google::Apis::GmailV1::AUTH_GMAIL_READONLY
 
 	def initialize(config)
@@ -43,9 +43,9 @@ class GmailDriver < Driver
 		# X-Google-DKIM-Signature, X-Google-Smtp-Source, X-MaxCode-Template, X-PP-Email-transmission-Id,
 		# X-PP-REQUESTED-TIME, X-Received, X-Received, X-Received
 		label_id = get_label_id(user_id, service, "CATEGORY_PERSONAL")
-		msgs_metadata = service.list_user_messages("me", max_results: 10, label_ids: @config["Label"]).messages
+		msgs_metadata = service.list_user_messages("me", max_results: 3, label_ids: @config["Label"]).messages
 		# debug = true
-		binding.pry
+		# binding.pry
 		msgs_metadata.map do |msg_metadata|
 			msg = service.get_user_message(user_id, msg_metadata.id, format: "metadata", metadata_headers: %w[Subject From])
 			headers = msg.payload.headers
