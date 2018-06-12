@@ -44,19 +44,16 @@ class GmailDriver < Driver
 		# X-PP-REQUESTED-TIME, X-Received, X-Received, X-Received
 		label_id = get_label_id(user_id, service, "CATEGORY_PERSONAL")
 		msgs_metadata = service.list_user_messages("me", max_results: 3, label_ids: @config["Label"]).messages
-		# debug = true
-		# binding.pry
 		msgs_metadata.map do |msg_metadata|
 			msg = service.get_user_message(user_id, msg_metadata.id, format: "metadata", metadata_headers: %w[Subject From])
 			headers = msg.payload.headers
-			# binding.pry if debug
-			# debug = false
 			RubyDash::Item.new(
 				title: get_header_value(headers, "Subject"),
 				created_at: Time.at(msg.internal_date / 1000),
 				details: msg.snippet,
 				read: !msg.label_ids.include?("UNREAD"),
-				icon: msg.label_ids.include?("UNREAD") ? "✉️" : ""
+				icon: msg.label_ids.include?("UNREAD") ? "✉️" : "",
+				from: get_header_value(headers, "From")
 			)
 		end
 	end
