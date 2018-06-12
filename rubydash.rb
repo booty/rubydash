@@ -7,6 +7,7 @@ require "titleize"
 require "active_support/all"
 require "action_view"
 require "dotiw"
+require "colorize"
 
 require_relative "item"
 
@@ -19,6 +20,7 @@ STATE_FILE_NAME = "state.yml"
 STATE_FILE_PATH = File.join(DATA_PATH, STATE_FILE_NAME)
 SEE_CONFIG_SAMPLE_MESSAGE = "See #{CONFIG_SAMPLE_FILE_PATH} for an example of how your #{CONFIG_FILE_NAME} might look."
 STATE_SCHEMA_VERSION = 1
+OUTPUT_WIDTH = 100
 
 # Where the magic happens
 class RubyDash
@@ -45,7 +47,15 @@ class RubyDash
 																					compact: true,
 																					highest_measures: 1,
 																					two_words_connector: " ")
-				puts "#{dotiw}"
+				indentor = "  • "
+				icon = "#{item.icon}".strip
+				title = "#{icon}  #{item.title}".strip
+
+				print indentor
+				print title.white.bold
+				right_side = "#{item.from} (#{dotiw})"
+				printf "%#{OUTPUT_WIDTH - title.length}s\n", right_side
+				puts "    #{item.details.truncate(100 - identor.length, separator: ' ')}".cyan.italic if item.details
 			end
 		end
 	end
@@ -119,6 +129,14 @@ private
 		new_state
 	end
 end
+
+# puts String.colors                       # return array of all possible colors names
+# puts String.modes                        # return array of all possible modes
+# String.color_samples                # displays color samples in all combinations
+
+# puts "Fuck you".yellow
+# puts "Fuck you".light_cyan
+# puts "Fuck you".light_cyan.italic
 
 dashboard = RubyDash.new
 items_by_feed_name = dashboard.fetch

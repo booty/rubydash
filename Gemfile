@@ -10,4 +10,4 @@ gem "google-api-client", "~> 0.23.0"
 gem "fileutils"
 gem "pry-byebug"
 gem "titleize"
-
+gem "colorize"
