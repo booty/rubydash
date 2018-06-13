@@ -52,7 +52,7 @@ class GmailDriver < Driver
 				created_at: Time.at(msg.internal_date / 1000),
 				details: msg.snippet,
 				read: !msg.label_ids.include?("UNREAD"),
-				icon: msg.label_ids.include?("UNREAD") ? "✉️" : "",
+				icon: msg.label_ids.include?("UNREAD") ? "!" : nil,
 				from: get_header_value(headers, "From")
 			)
 		end
