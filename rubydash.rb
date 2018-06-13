@@ -44,32 +44,35 @@ class RubyDash
 		items_by_feed_name.each do |feed_name, items|
 			puts "--- #{feed_name} ---"
 			items.each do |item|
-				dotiw = distance_of_time_in_words(Time.now,
-																					item.created_at,
-																					compact: true,
-																					highest_measures: 1,
-																					two_words_connector: " ")
-
-				left_side = "#{(item.icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{item.title}"
-				right_side = "#{item.from} (#{dotiw})"
-
-				if left_side.length + right_side.length > OUTPUT_WIDTH
-					right_side = "#{item.from.truncate(30, separator: /[\s\@\.]/, omission: '…')} (#{dotiw})"
-				end
-
-				if left_side.length + right_side.length > OUTPUT_WIDTH
-					left_side = left_side.truncate(OUTPUT_WIDTH - right_side.length, separator: " ", omission: "… ")
-				end
-
-				print left_side.white.bold
-				puts right_side.rjust(OUTPUT_WIDTH - left_side.length)
-				if item.details
-					# HTML.fragment renders HTML entities; common in email bodies
-					details = Nokogiri::HTML.fragment(item.details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES, separator: ' ', omission: '… ')
-					puts "#{' ' * (ITEM_INDENT_SPACES + 1)}#{details}".cyan.italic
-				end
+				render_item(item)
+				render_item_details(item)
 			end
 		end
+	end
+
+	def render_item(item)
+		dotiw = distance_of_time_in_words(Time.now, item.created_at, compact: true, highest_measures: 1, two_words_connector: " ")
+
+		left_side = "#{(item.icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{item.title}"
+		right_side = "#{item.from} (#{dotiw})"
+
+		if left_side.length + right_side.length > OUTPUT_WIDTH
+			right_side = "#{item.from.truncate(30, separator: /[\s\@\.]/, omission: '…')} (#{dotiw})"
+		end
+
+		if left_side.length + right_side.length > OUTPUT_WIDTH
+			left_side = left_side.truncate(OUTPUT_WIDTH - right_side.length, separator: " ", omission: "… ")
+		end
+
+		print left_side.white.bold
+		puts right_side.rjust(OUTPUT_WIDTH - left_side.length)
+	end
+
+	def render_item_details(item)
+		return unless item.details
+		# HTML.fragment renders HTML entities; common in email bodies
+		details = Nokogiri::HTML.fragment(item.details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES, separator: ' ', omission: '… ')
+		puts "#{' ' * (ITEM_INDENT_SPACES + 1)}#{details}".cyan.italic
 	end
 
 	def initialize
