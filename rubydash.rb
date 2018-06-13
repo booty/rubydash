@@ -8,6 +8,7 @@ require "active_support/all"
 require "action_view"
 require "dotiw"
 require "colorize"
+require "terminfo"
 
 require_relative "item"
 
@@ -20,14 +21,15 @@ STATE_FILE_NAME = "state.yml"
 STATE_FILE_PATH = File.join(DATA_PATH, STATE_FILE_NAME)
 SEE_CONFIG_SAMPLE_MESSAGE = "See #{CONFIG_SAMPLE_FILE_PATH} for an example of how your #{CONFIG_FILE_NAME} might look."
 STATE_SCHEMA_VERSION = 1
-OUTPUT_WIDTH = 100
+ITEM_INDENT_SPACES = 2
+OUTPUT_WIDTH = TermInfo.screen_size[1] - ITEM_INDENT_SPACES
+DEFAULT_ICON = ""
 
 # Where the magic happens
 class RubyDash
 	include ActionView::Helpers::DateHelper
 
 	def fetch
-		# binding.pry
 		items_by_feed_name = {}
 		@config["Feeds"].each_pair do |name, feed|
 			puts "Fetching feed #{name}"
@@ -47,15 +49,25 @@ class RubyDash
 																					compact: true,
 																					highest_measures: 1,
 																					two_words_connector: " ")
-				indentor = "  • "
-				icon = "#{item.icon}".strip
-				title = "#{icon}  #{item.title}".strip
 
-				print indentor
-				print title.white.bold
+				left_side = "#{(item.icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{item.title}"
 				right_side = "#{item.from} (#{dotiw})"
-				printf "%#{OUTPUT_WIDTH - title.length}s\n", right_side
-				puts "    #{item.details.truncate(100 - identor.length, separator: ' ')}".cyan.italic if item.details
+
+				if left_side.length + right_side.length > OUTPUT_WIDTH
+					right_side = "#{item.from.truncate(30, separator: /[\s\@\.]/, omission: '…')} (#{dotiw})"
+				end
+
+				if left_side.length + right_side.length > OUTPUT_WIDTH
+					left_side = left_side.truncate(OUTPUT_WIDTH - right_side.length, separator: " ", omission: "… ")
+				end
+
+				print left_side.white.bold
+				puts right_side.rjust(OUTPUT_WIDTH - left_side.length)
+				if item.details
+					# HTML.fragment renders HTML entities; common in email bodies
+					details = Nokogiri::HTML.fragment(item.details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES, separator: ' ', omission: '… ')
+					puts "#{' ' * (ITEM_INDENT_SPACES + 1)}#{details}".cyan.italic
+				end
 			end
 		end
 	end
