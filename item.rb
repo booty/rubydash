@@ -1,16 +1,54 @@
 # frozen_string_literal: true
 
+require "active_support/all"
+require "dotiw"
+
 class RubyDash
 	class Item
-		attr_reader :title, :created_at, :read, :details, :icon, :from
-		def initialize(title:, created_at:, read: nil, updated_at: nil, details: nil, icon: nil, from: nil)
-			@title = title
-			@created_at = created_at
-			@read = read
-			@updated_at = updated_at
-			@details = details
-			@icon = icon
-			@from = from
+		include ActionView::Helpers::DateHelper
+
+		attr_reader :title, :created_at, :updated_at, :read, :details, :icon, :creator
+
+		def initialize(stuff:)
+			@title = stuff["title"]
+			@created_at = stuff["created_at"]
+			@read = stuff["read"]
+			@updated_at = stuff["updated_at"]
+			@details = stuff["details"]
+			@icon = stuff["icon"]
+			@creator = stuff["creator"]
+		end
+
+		def render
+			render_item
+			render_item_details
+		end
+
+	private
+
+		def render_item
+			dotiw = distance_of_time_in_words(Time.now, Time.at(@created_at), compact: true, highest_measures: 1, two_words_connector: " ")
+
+			left_side = "#{(@icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{@title}"
+			right_side = "#{@creator} (#{dotiw})"
+
+			if left_side.length + right_side.length > OUTPUT_WIDTH
+				right_side = "#{@creator.truncate(30, separator: /[\s\@\.]/, omission: '…')} (#{dotiw})"
+			end
+
+			if left_side.length + right_side.length > OUTPUT_WIDTH
+				left_side = left_side.truncate(OUTPUT_WIDTH - right_side.length, separator: " ", omission: "… ")
+			end
+
+			print left_side.white.bold
+			puts right_side.rjust(OUTPUT_WIDTH - left_side.length)
+		end
+
+		def render_item_details
+			return unless @details
+			# HTML.fragment renders HTML entities; common in email bodies
+			details = Nokogiri::HTML.fragment(@details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES, separator: ' ', omission: '… ')
+			puts "#{' ' * (ITEM_INDENT_SPACES + 1)}#{details}".cyan.italic
 		end
 	end
 end

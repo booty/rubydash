@@ -16,7 +16,7 @@ class GmailDriver < Driver
 		@config = config
 	end
 
-	def fetch_uncached
+	def fetch_items_uncached
 		# Initialize the API ok
 		service = Google::Apis::GmailV1::GmailService.new
 		service.client_options.application_name = APPLICATION_NAME
@@ -24,7 +24,6 @@ class GmailDriver < Driver
 
 		# Show the user's labels
 		user_id = "me"
-		# binding.pry
 		# result = service.list_user_labels(user_id)
 		# puts "Labels:"
 		# puts "No labels found" if result.labels.empty?
@@ -47,13 +46,16 @@ class GmailDriver < Driver
 		msgs_metadata.map do |msg_metadata|
 			msg = service.get_user_message(user_id, msg_metadata.id, format: "metadata", metadata_headers: %w[Subject From])
 			headers = msg.payload.headers
+			stuff = {
+				"title" => get_header_value(headers, "Subject"),
+				"created_at" => Time.at(msg.internal_date / 1000),
+				"details" => msg.snippet,
+				"read" => !msg.label_ids.include?("UNREAD"),
+				"icon" => msg.label_ids.include?("UNREAD") ? "!" : nil,
+				"creator" => get_header_value(headers, "From")
+			}
 			RubyDash::Item.new(
-				title: get_header_value(headers, "Subject"),
-				created_at: Time.at(msg.internal_date / 1000),
-				details: msg.snippet,
-				read: !msg.label_ids.include?("UNREAD"),
-				icon: msg.label_ids.include?("UNREAD") ? "!" : nil,
-				from: get_header_value(headers, "From")
+				stuff: stuff
 			)
 		end
 	end

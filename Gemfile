@@ -12,3 +12,7 @@ gem "pry-byebug"
 gem "titleize"
 gem "colorize"
 gem "ruby-terminfo"
+gem "pry-rescue"
+gem "pry-stack_explorer"
+
+gem "sqlite3", "~> 1.3"
