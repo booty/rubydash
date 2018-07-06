@@ -32,6 +32,7 @@ class RubyDash
 					details: item.details
 				}
 				@db.execute("insert into items (feed_name, created_at, updated_at, fetched_at, title, creator, read, icon, details) values (:feed_name, :created_at, :updated_at, :fetched_at, :title, :creator, :read, :icon, :details)", params)
+				set_fetched_at(feed_name: feed_name)
 			end
 		end
 
@@ -43,6 +44,10 @@ class RubyDash
 			@db.get_first_value("select fetched_at from fetch_histories where feed_name=?;", feed_name).to_i
 		end
 
+		def set_fetched_at(feed_name:)
+			@db.execute("INSERT INTO fetch_histories(feed_name, fetched_at) VALUES (?,?) ON CONFLICT(feed_name) DO UPDATE set fetched_at=?", feed_name, Time.now.utc.to_i, Time.now.utc.to_i)
+		end
+
 	private
 
 		def purge_items(feed_name:)
@@ -51,7 +56,9 @@ class RubyDash
 
 		def open_or_create_database(path, current_schema_version)
 			db = open_database(path)
-			return db if database_schema_version(db) == current_schema_version
+			schema_version = database_schema_version(db)
+			LOGGER.info "[Cache#open_or_create_database] db's schema_version=#{schema_version} current_schema_version=#{current_schema_version}"
+			return db if schema_version == current_schema_version
 			initialize_database(path, current_schema_version)
 		rescue SQLite3::SQLException
 			initialize_database(path, current_schema_version)
@@ -64,7 +71,7 @@ class RubyDash
 			File.delete(path) if File.file?(path) # Quickest way to wipe the schema in SQlite
 			db = open_database(path)
 			db.execute "CREATE TABLE items(feed_name text, created_at datetime, updated_at datetime, fetched_at datetime, title text, creator text, read boolean, icon text, details text);"
-			db.execute "CREATE TABLE fetch_histories(feed_name text, fetched_at datetime, failure_count integer);"
+			db.execute "CREATE TABLE fetch_histories(feed_name text PRIMARY KEY, fetched_at datetime, failure_count integer);"
 			db.execute "CREATE TABLE schema_version(version integer);"
 			db.execute "INSERT INTO schema_version(version) VALUES (#{current_schema_version});"
 			db

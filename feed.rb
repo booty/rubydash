@@ -10,8 +10,9 @@ class RubyDash
 
 		def fetch
 			next_fetch_time = fetched_at + effective_ttl_seconds
+			LOGGER.debug "[Feed#fetch] [#{@name}] Time.now.utc.to_i=#{Time.now.utc.to_i} next_fetch_time=#{next_fetch_time}"
 			if next_fetch_time > Time.now.utc.to_i
-				LOGGER.debug "[#{@name}] Skipping fetch. Next fetch at #{next_fetch_time}"
+				LOGGER.debug "[Feed#fetch] [#{@name}] Skipping fetch."
 				return
 			end
 			fetch_items_uncached
