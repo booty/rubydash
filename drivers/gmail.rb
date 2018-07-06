@@ -17,20 +17,12 @@ class GmailDriver < Driver
 	end
 
 	def fetch_items_uncached
-		# Initialize the API ok
 		service = Google::Apis::GmailV1::GmailService.new
 		service.client_options.application_name = APPLICATION_NAME
 		service.authorization = authorize
 
 		# Show the user's labels
 		user_id = "me"
-		# result = service.list_user_labels(user_id)
-		# puts "Labels:"
-		# puts "No labels found" if result.labels.empty?
-		# result.labels.each { |label| puts "- #{label.name}" }
-
-		# TODO: allow user to configure label(s)
-		# service.list_user_messages("me", max_results: 25, label_ids: "Label_18")
 
 		# AMQ-Delivery-Message-Id, ARC-Authentication-Results,
 		# ARC-Authentication-Results, ARC-Message-Signature, ARC-Message-Signature,
@@ -41,7 +33,6 @@ class GmailDriver < Driver
 		# Subject, To, X-Email-Type-Id, X-Forwarded-For, X-Forwarded-To, X-Gm-Message-State,
 		# X-Google-DKIM-Signature, X-Google-Smtp-Source, X-MaxCode-Template, X-PP-Email-transmission-Id,
 		# X-PP-REQUESTED-TIME, X-Received, X-Received, X-Received
-		label_id = get_label_id(user_id, service, "CATEGORY_PERSONAL")
 		msgs_metadata = service.list_user_messages("me", max_results: 3, label_ids: @config["Label"]).messages
 		msgs_metadata.map do |msg_metadata|
 			msg = service.get_user_message(user_id, msg_metadata.id, format: "metadata", metadata_headers: %w[Subject From])
@@ -62,10 +53,6 @@ class GmailDriver < Driver
 
 private
 
-	def get_label_id(user_id, service, label_name)
-		service.list_user_labels(user_id).labels.find { |l| l.name == label_name }&.id
-	end
-
 	def get_header_value(headers, header_name)
 		headers.find { |h| h.name == header_name }.value
 	end
@@ -79,10 +66,11 @@ private
 		token_store = Google::Auth::Stores::FileTokenStore.new(file: CREDENTIALS_PATH)
 		authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store)
 		user_id = "default"
+		LOGGER.debug "[GmailDriver#authorize] Authorizing..."
 		credentials = authorizer.get_credentials(user_id)
 		if credentials.nil?
 			url = authorizer.get_authorization_url(base_url: OOB_URI)
-			puts "Open the following URL in the browser and enter the " \
+			LOGGER.warn "Open the following URL in the browser and enter the " \
 					 "resulting code after authorization:\n" + url
 			code = gets
 			credentials = authorizer.get_and_store_credentials_from_code(

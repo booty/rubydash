@@ -7,6 +7,7 @@ require "titleize"
 require "action_view"
 require "colorize"
 require "terminfo"
+require "logger"
 
 require_relative "item"
 require_relative "cache"
@@ -24,6 +25,7 @@ CACHE_SCHEMA_VERSION = rand(0..99999)
 ITEM_INDENT_SPACES = 2
 OUTPUT_WIDTH = TermInfo.screen_size[1] - ITEM_INDENT_SPACES
 DEFAULT_ICON = ""
+LOGGER = Logger.new(STDOUT)
 
 # Where the magic happens
 class RubyDash
@@ -45,7 +47,7 @@ class RubyDash
 		Dir.mkdir(DATA_PATH) unless File.directory?(DATA_PATH)
 		initialize_config_sample_if_needed
 		@drivers = load_drivers
-		puts "Loaded drivers: #{driver_names.join(', ')}"
+		LOGGER.info "Loaded drivers: #{driver_names.join(', ')}"
 		@config = load_validated_config
 		@cache = Cache.new(path: CACHE_FILE_PATH, current_schema_version: CACHE_SCHEMA_VERSION)
 	end
@@ -55,9 +57,7 @@ private
 	def initialize_config_sample_if_needed
 		return if File.file?(CONFIG_FILE_PATH)
 		FileUtils.cp(CONFIG_SAMPLE_FILE_NAME, CONFIG_SAMPLE_FILE_PATH)
-		puts "You need to create #{CONFIG_FILE_PATH} to define your feeds."
-		puts SEE_CONFIG_SAMPLE_MESSAGE
-		exit(false)
+		raise "You need to create #{CONFIG_FILE_PATH} to define your feeds. \n#{SEE_CONFIG_SAMPLE_MESSAGE}"
 	end
 
 	def load_drivers

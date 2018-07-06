@@ -11,7 +11,7 @@ class RubyDash
 		def fetch
 			next_fetch_time = fetched_at + effective_ttl_seconds
 			if next_fetch_time > Time.now.utc.to_i
-				puts "[#{@name}] Skipping fetch. Next fetch at #{next_fetch_time}"
+				LOGGER.debug "[#{@name}] Skipping fetch. Next fetch at #{next_fetch_time}"
 				return
 			end
 			fetch_items_uncached
@@ -41,7 +41,7 @@ class RubyDash
 						else
 							minimum_wait_seconds * (failure_count + 1)
 						end
-			puts "[effective_ttl_seconds] ttl=#{ttl} minimum_wait_seconds=#{@config['minimum_wait_seconds']} failure_count=#{failure_count}"
+			LOGGER.debug "[effective_ttl_seconds] ttl=#{ttl} minimum_wait_seconds=#{@config['minimum_wait_seconds']} failure_count=#{failure_count}"
 			ttl
 		end
 
@@ -60,7 +60,7 @@ class RubyDash
 			Object.const_get(driver_class_name).new(@config)
 		rescue NameError => e
 			# TODO: show proper driver path
-			puts "There's a problem with the feed '#{@name}'... type is 'type', but I couldn't find a class named #{driver_class_name} in (driver path goes here)\n#{e}"
+			LOGGER.warn "There's a problem with the feed '#{@name}'... type is 'type', but I couldn't find a class named #{driver_class_name} in (driver path goes here)\n#{e}"
 		end
 	end
 end

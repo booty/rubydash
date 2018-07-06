@@ -12,9 +12,7 @@ class RubyDash
 
 		def get_items(feed_name:)
 			# TODO: delete items if they're too old
-			dicks = @db.execute("select * from items where feed_name=? order by created_at desc", feed_name)
-			debug = true
-			dicks.map do |result|
+			@db.execute("select * from items where feed_name=? order by created_at desc", feed_name).map do |result|
 				Item.new(stuff: result)
 			end
 		end
@@ -61,7 +59,7 @@ class RubyDash
 
 		# nukes the database and installs a fresh schema
 		def initialize_database(path, current_schema_version)
-			puts "[initialize_database] Let's initialize"
+			LOGGER.debug "[initialize_database] Let's initialize"
 			close_database
 			File.delete(path) if File.file?(path) # Quickest way to wipe the schema in SQlite
 			db = open_database(path)
