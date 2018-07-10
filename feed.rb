@@ -15,6 +15,7 @@ class RubyDash
 				LOGGER.debug "[Feed#fetch] [#{@name}] Skipping fetch."
 				return
 			end
+			LOGGER.debug "[Feed#fetch] [#{@name}] Not skipping fetch; will fetch_items_uncached"
 			fetch_items_uncached
 		end
 

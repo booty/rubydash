@@ -16,3 +16,5 @@ gem "pry-rescue"
 gem "pry-stack_explorer"
 
 gem "sqlite3", "~> 1.3"
+
+gem "redd", "~> 0.8.8"
