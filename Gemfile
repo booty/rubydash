@@ -17,4 +17,4 @@ gem "pry-stack_explorer"
 
 gem "sqlite3", "~> 1.3"
 
-gem "redd", "~> 0.8.8"
+gem "redd", "~> 0.8", git: "https://github.com/booty/redd.git"

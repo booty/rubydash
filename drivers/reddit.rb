@@ -16,18 +16,22 @@ class RedditDriver < Driver
 			password: @config["Password"]
 		)
 		session.my_messages.first(@config["Quantity"]).map do |msg|
-			title, creator = case msg.subject
+			title, creator = case (msg.title rescue msg.subject)
 											 when "comment reply"
 												 ["Comment reply from #{msg.subreddit_name_prefixed}", "u/#{msg.author.name}"]
+											 when "post reply"
+												 ["Post reply from #{msg.subreddit_name_prefixed}", "u/#{msg.author.name}"]
+											 when "username mention"
+											 	 ["Mentioned in #{msg.subreddit_name_prefixed}", "u/#{msg.author.name}"]
 											 else
-												 ["[Private] #{msg.subject}", "u/#{msg.author}"]
+												 ["✉️  #{msg.subject}", "u/#{msg.author}"]
 											 end
 			stuff = {
 				"title" => title,
 				"created_at" => Time.at(msg.created_utc),
-				"details" => msg.body,
-				"read" => !msg.new,
-				"icon" => msg.new ? "!" : nil,
+				"details" => msg.body.gsub("\n", " ").gsub(/\s+/, " "),
+				"read" => !msg.new?,
+				"icon" => msg.new? ? "!" : nil,
 				"creator" => creator
 			}
 			RubyDash::Item.new(
