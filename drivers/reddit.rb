@@ -29,7 +29,7 @@ class RedditDriver < Driver
 			stuff = {
 				"title" => title,
 				"created_at" => Time.at(msg.created_utc),
-				"details" => msg.body.gsub("\n", " ").gsub(/\s+/, " "),
+				"details" => msg.body,
 				"read" => !msg.new?,
 				"icon" => msg.new? ? "!" : nil,
 				"creator" => creator

@@ -23,7 +23,7 @@ class TwitterDriver < Driver
 										 end
 
 			stuff = {
-				"title" => "#{stat_summary}#{status.text.gsub("\n", " ").gsub(/\s+/, " ")}",
+				"title" => "#{stat_summary}#{status.text}",
 				"created_at" => status.created_at,
 				"read" => nil,
 				"icon" => nil,

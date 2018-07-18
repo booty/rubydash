@@ -10,11 +10,11 @@ class RubyDash
 		attr_reader :title, :created_at, :updated_at, :read, :details, :icon, :creator
 
 		def initialize(stuff:)
-			@title = stuff["title"]
+			@title = stuff["title"].gsub(/\n/, " ").gsub(/\s+/, " ")
 			@created_at = stuff["created_at"]
 			@read = stuff["read"]
 			@updated_at = stuff["updated_at"]
-			@details = stuff["details"]
+			@details = stuff["details"].gsub(/\n/, " ").gsub(/\s+/, " ")
 			@icon = stuff["icon"]
 			@creator = stuff["creator"]
 		end
