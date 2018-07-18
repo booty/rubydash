@@ -6,12 +6,6 @@ class TwitterDriver < Driver
 	end
 
 	def fetch_items_uncached
-
-		timeline = client.user_timeline
-		# ids = client.user_timeline.map(&:id)
-
-
-
 		client.user_timeline.first(3).map do |status|
 			stats = []
 			stats << "re:#{status.retweet_count}" if status.retweet_count > 0
@@ -41,7 +35,7 @@ class TwitterDriver < Driver
 		end
 	end
 
-	private
+private
 
 	def user_names_who_retweeted(id)
 		(HTTP.get("https://twitter.com/i/activity/retweeted_popup?id=#{id}").body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq - [@config["Username"]]).join(", ")
