@@ -7,27 +7,15 @@ class TwitterDriver < Driver
 
 	def fetch_items_uncached
 		client.user_timeline.first(@config["Quantity"]).map do |status|
-			stats = []
-			stats << "re:#{status.retweet_count}" if status.retweet_count > 0
-			stats << "lk:#{status.favorite_count}" if status.favorite_count > 0
-			stat_summary = if stats.any?
-											"#{stats.join(', ')} | "
-										 else
-										 	""
-										 end
-
 			stuff = {
-				"title" => "#{stat_summary}#{status.text}",
+				"title" => "#{engagement(status)}#{status.text}",
 				"created_at" => status.created_at,
 				"read" => nil,
 				"icon" => nil,
 				"creator" => @config["Username"]
 			}
 
-			details = []
-			details << "Retweeted: #{user_names_who_retweeted(status.id)}" if status.retweet_count.positive?
-			details << "Liked: #{user_names_who_liked(status.id)}" if status.favorite_count.positive?
-			stuff["details"] = details.join(" | ") if details.any?
+			stuff["details"] = details(status)
 
 			RubyDash::Item.new(
 				stuff: stuff
@@ -36,6 +24,22 @@ class TwitterDriver < Driver
 	end
 
 private
+
+	def engagement(status)
+		result = []
+		result << "re:#{status.retweet_count}" if status.retweet_count.positive?
+		result << "lk:#{status.favorite_count}" if status.favorite_count.positive?
+		return nil if result.none?
+		result.join(", ")
+	end
+
+	def details(status)
+		result = []
+		result << "Retweeted: #{user_names_who_retweeted(status.id)}" if status.retweet_count.positive?
+		result << "Liked: #{user_names_who_liked(status.id)}" if status.favorite_count.positive?
+		return nil if result.none?
+		result.join(" | ")
+	end
 
 	def user_names_who_retweeted(id)
 		(HTTP.get("https://twitter.com/i/activity/retweeted_popup?id=#{id}").body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq - [@config["Username"]]).join(", ")
