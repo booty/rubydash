@@ -14,7 +14,7 @@ class RubyDash
 			@created_at = stuff["created_at"]
 			@read = stuff["read"]
 			@updated_at = stuff["updated_at"]
-			@details = stuff["details"].gsub(/\n/, " ").gsub(/\s+/, " ")
+			@details = stuff["details"].gsub(/\n/, " ").gsub(/\s+/, " ") if stuff["details"]
 			@icon = stuff["icon"]
 			@creator = stuff["creator"]
 		end
@@ -47,8 +47,8 @@ class RubyDash
 		def render_item_details
 			return unless @details
 			# HTML.fragment renders HTML entities; common in email bodies
-			details = Nokogiri::HTML.fragment(@details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES, separator: ' ', omission: '… ')
-			puts "#{' ' * (ITEM_INDENT_SPACES + 1)}#{details}".cyan.italic
+			details = Nokogiri::HTML.fragment(@details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES * 2, separator: ' ', omission: '… ')
+			puts "#{' ' * (ITEM_INDENT_SPACES * 2 + 1)}#{details}".cyan.italic
 		end
 	end
 end
