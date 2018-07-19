@@ -27,7 +27,7 @@ class RubyDash
 	private
 
 		def render_item
-			dotiw = distance_of_time_in_words(Time.now, Time.at(@created_at), compact: true, highest_measures: 1, two_words_connector: " ")
+			dotiw = distance_of_time_in_words(Time.now, Time.at(@created_at), DOTIW_OPTIONS.call)
 
 			left_side = "#{(@icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{@title}"
 			right_side = "#{@creator} (#{dotiw})"

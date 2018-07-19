@@ -21,11 +21,18 @@ CONFIG_FILE_PATH = File.join(DATA_PATH, CONFIG_FILE_NAME)
 CACHE_FILE_NAME = "cache.sqlite3"
 CACHE_FILE_PATH = File.join(DATA_PATH, CACHE_FILE_NAME)
 SEE_CONFIG_SAMPLE_MESSAGE = "See #{CONFIG_SAMPLE_FILE_PATH} for an example of how your #{CONFIG_FILE_NAME} might look."
-CACHE_SCHEMA_VERSION = 2
+CACHE_SCHEMA_VERSION = 3
 ITEM_INDENT_SPACES = 2
 OUTPUT_WIDTH = TermInfo.screen_size[1] - ITEM_INDENT_SPACES
 DEFAULT_ICON = ""
-LOGGER = Logger.new(STDOUT)
+LOGGER = Logger.new("/tmp/rubydash.log")
+
+# This is horrible and I promise to replace it with something better
+# We can't simply store the hash in a constant and reuse it because
+# the dotiw gem calls #delete on the options hash you pass to it,
+# so we actually need a new hash each time
+DOTIW_DEFAULTS = { compact: true, highest_measures: 1, two_words_connector: " " }.freeze
+DOTIW_OPTIONS = -> { DOTIW_DEFAULTS.dup }
 
 # Where the magic happens
 class RubyDash
@@ -44,11 +51,12 @@ class RubyDash
 	end
 
 	def initialize
+		LOGGER.info "--- Init ---"
+		@config = load_validated_config
 		Dir.mkdir(DATA_PATH) unless File.directory?(DATA_PATH)
 		initialize_config_sample_if_needed
 		@drivers = load_drivers
 		LOGGER.info "Loaded drivers: #{driver_names.join(', ')}"
-		@config = load_validated_config
 		@cache = Cache.new(path: CACHE_FILE_PATH, current_schema_version: CACHE_SCHEMA_VERSION)
 	end
 
