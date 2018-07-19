@@ -6,7 +6,7 @@ class TwitterDriver < Driver
 	end
 
 	def fetch_items_uncached
-		client.user_timeline.first(3).map do |status|
+		client.user_timeline.first(@config["Quantity"]).map do |status|
 			stats = []
 			stats << "re:#{status.retweet_count}" if status.retweet_count > 0
 			stats << "lk:#{status.favorite_count}" if status.favorite_count > 0
