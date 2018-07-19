@@ -1,5 +1,10 @@
+# frozen_string_literal: true
 require "twitter"
 
+# Note: Getting information about a tweet's (status') engagement stats is very wonky
+# Officially Twitter's API doesn't support it unless you subscribe to some enterprisey
+# streaming API.
+# We use a kludge to scrape this information instread for lack of a better alternative
 class TwitterDriver < Driver
 	def initialize(config)
 		@config = config
@@ -41,14 +46,17 @@ private
 		result.join(" | ")
 	end
 
+	# Kludge due to API limitations
 	def user_names_who_retweeted(id)
 		(HTTP.get("https://twitter.com/i/activity/retweeted_popup?id=#{id}").body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq - [@config["Username"]]).join(", ")
 	end
 
+	# Kludge due to API limitations
 	def user_names_who_liked(id)
 		(HTTP.get("https://twitter.com/i/activity/favorited_popup?id=#{id}").body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq - [@config["Username"]]).join(", ")
 	end
 
+	# Kludge due to API limitations
 	def user_ids_who_liked_status(id)
 		HTTP.get("https://twitter.com/i/activity/favorited_popup?id=#{id}").body.to_s.scan(/data-user-id=\\"(\d+)/).flatten.uniq
 	end
