@@ -1,17 +1,19 @@
 # frozen_string_literal: true
 
-# on disk: feed_name, fetched_at, failure_count
+require "active_support/all"
+require "dotiw"
 
 class RubyDash
 	class Feed
+		include ActionView::Helpers::DateHelper
+
 		def initialize(name:, config:, cache:)
 			@name, @config, @cache = name, config, cache
 		end
 
 		def fetch
-			next_fetch_time = fetched_at + effective_ttl_seconds
-			LOGGER.debug "[Feed#fetch] [#{@name}] Time.now.utc.to_i=#{Time.now.utc.to_i} next_fetch_time=#{next_fetch_time}"
-			if next_fetch_time > Time.now.utc.to_i
+			LOGGER.debug "[Feed#fetch] [#{@name}] Time.now.utc=#{Time.now.utc} next_fetch_time=#{next_fetch_time}"
+			if too_soon_for_fetch?
 				LOGGER.debug "[Feed#fetch] [#{@name}] Skipping fetch."
 				return
 			end
@@ -20,14 +22,27 @@ class RubyDash
 		end
 
 		def render
-			puts "--- #{@name} ---\n"
+			left_side = "⎯⎯⎯⎯⎯⎯⎯⎯⎯| #{@name} |"
+			fetched_time_ago = distance_of_time_in_words(fetched_at, Time.current, compact: true, highest_measures: 1, two_words_connector: " ")
+			next_fetch = distance_of_time_in_words(next_fetch_time, Time.current, compact: true, highest_measures: 1, two_words_connector: " ")
+			right_side = " #{fetched_time_ago} ago / in #{next_fetch}"
+			padding_char = "⎯"
+			padding_width = OUTPUT_WIDTH - left_side.length - right_side.length
+			puts "#{left_side}#{padding_char * padding_width}#{right_side}"
 			@cache.get_items(feed_name: @name).each(&:render)
 		end
 
 	private
+		def too_soon_for_fetch?
+			next_fetch_time > Time.now.utc
+		end
+
+		def next_fetch_time
+			fetched_at + effective_ttl_seconds
+		end
 
 		def fetched_at
-			@cache.fetched_at(feed_name: @name)
+			Time.at(@fetched_at ||= @cache.fetched_at(feed_name: @name))
 		end
 
 		def failure_count
