@@ -11,7 +11,7 @@ class TwitterDriver < Driver
 	end
 
 	def fetch_items_uncached
-		client.user_timeline.first(@config["Quantity"]).map do |status|
+		user_timeline.first(@config["Quantity"]).map do |status|
 			stuff = {
 				"title" => "#{engagement(status)}#{status.text}",
 				"created_at" => status.created_at,
@@ -29,6 +29,12 @@ class TwitterDriver < Driver
 	end
 
 private
+
+	def user_timeline
+		client.user_timeline
+	rescue StandardError => e
+		raise RubyDash::Feed::FetchError, "#{e.class.name} #{e.to_s}"
+	end
 
 	def engagement(status)
 		result = []

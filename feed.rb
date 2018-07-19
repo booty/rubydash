@@ -5,7 +5,10 @@ require "dotiw"
 
 class RubyDash
 	class Feed
+		PADDING_CHAR = "⎯"
 		include ActionView::Helpers::DateHelper
+
+		class FetchError < StandardError; end
 
 		def initialize(name:, config:, cache:)
 			@name, @config, @cache = name, config, cache
@@ -67,6 +70,8 @@ class RubyDash
 			# TODO: increment failure count if this is not a success
 			items = driver.fetch_items_uncached
 			@cache.set_items(feed_name: @name, items: items)
+		rescue FetchError => e
+			@cache.increment_failure_count(feed_name: @name, exception: e)
 		end
 
 		def driver_class_name

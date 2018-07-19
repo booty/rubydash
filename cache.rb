@@ -45,7 +45,20 @@ class RubyDash
 		end
 
 		def set_fetched_at(feed_name:)
-			@db.execute("INSERT INTO fetch_histories(feed_name, fetched_at) VALUES (?,?) ON CONFLICT(feed_name) DO UPDATE set fetched_at=?", feed_name, Time.now.utc.to_i, Time.now.utc.to_i)
+			params = {
+				feed_name: feed_name,
+				fetched_at: Time.now.utc.to_i,
+			}
+			@db.execute("INSERT INTO fetch_histories(feed_name, fetched_at, failure_count, last_failure_detail) VALUES (:feed_name, :fetched_at, 0, NULL) ON CONFLICT(feed_name) DO UPDATE set fetched_at=:fetched_at, failure_count=0, last_failure_detail=NULL", params)
+		end
+
+		def increment_failure_count(feed_name:, exception:)
+			params = {
+				feed_name: feed_name,
+				fetched_at: Time.now.utc.to_i,
+				last_failure_detail: exception.message,
+			}
+			@db.execute("INSERT INTO fetch_histories(feed_name, fetched_at, failure_count, last_failure_detail) VALUES (:feed_name, :fetched_at, 1, :last_failure_detail) ON CONFLICT(feed_name) DO UPDATE set fetched_at=:fetched_at, failure_count=failure_count+1, last_failure_detail=:fetched_at", params)
 		end
 
 	private
@@ -71,7 +84,7 @@ class RubyDash
 			File.delete(path) if File.file?(path) # Quickest way to wipe the schema in SQlite
 			db = open_database(path)
 			db.execute "CREATE TABLE items(feed_name text, created_at datetime, updated_at datetime, fetched_at datetime, title text, creator text, read boolean, icon text, details text);"
-			db.execute "CREATE TABLE fetch_histories(feed_name text PRIMARY KEY, fetched_at datetime, failure_count integer);"
+			db.execute "CREATE TABLE fetch_histories(feed_name text PRIMARY KEY, fetched_at datetime, failure_count integer, last_failure_detail text);"
 			db.execute "CREATE TABLE schema_version(version integer);"
 			db.execute "INSERT INTO schema_version(version) VALUES (#{current_schema_version});"
 			db
