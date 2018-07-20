@@ -7,7 +7,7 @@ class RubyDash
 	class Item
 		include ActionView::Helpers::DateHelper
 
-		attr_reader :title, :created_at, :updated_at, :read, :details, :icon, :creator
+		attr_reader :title, :created_at, :updated_at, :read, :details, :icon, :creator, :url
 
 		def initialize(stuff:)
 			@title = stuff["title"].gsub(/\n/, " ").gsub(/\s+/, " ")
@@ -17,6 +17,7 @@ class RubyDash
 			@details = stuff["details"].gsub(/\n/, " ").gsub(/\s+/, " ") if stuff["details"]
 			@icon = stuff["icon"]
 			@creator = stuff["creator"]
+			@url = stuff["url"]
 		end
 
 		def render
@@ -28,20 +29,24 @@ class RubyDash
 
 		def render_item
 			dotiw = distance_of_time_in_words(Time.now, Time.at(@created_at), DOTIW_OPTIONS.call)
-
-			left_side = "#{(@icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{@title}"
+			title = if @url
+								@url.hyperlink(label: @title)
+							else
+								@title
+							end
+			left_side = "#{(@icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{title}"
 			right_side = "#{@creator} (#{dotiw})"
 
-			if left_side.length + right_side.length > OUTPUT_WIDTH
+			if left_side.printable_length + right_side.length > OUTPUT_WIDTH
 				right_side = "#{@creator.truncate(30, separator: /[\s\@\.]/, omission: '…')} (#{dotiw})"
 			end
 
-			if left_side.length + right_side.length > OUTPUT_WIDTH
+			if left_side.printable_length + right_side.length > OUTPUT_WIDTH
 				left_side = left_side.truncate(OUTPUT_WIDTH - right_side.length, separator: " ", omission: "… ")
 			end
 
-			print left_side.white.bold
-			puts right_side.rjust(OUTPUT_WIDTH - left_side.length)
+			print left_side#.white.bold
+			puts right_side.rjust(OUTPUT_WIDTH - left_side.printable_length)
 		end
 
 		def render_item_details

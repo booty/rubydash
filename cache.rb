@@ -29,9 +29,10 @@ class RubyDash
 					creator: item.creator,
 					read: (item.read ? 1 : 0),
 					icon: item.icon,
-					details: item.details
+					details: item.details,
+					url: item.url
 				}
-				@db.execute("insert into items (feed_name, created_at, updated_at, fetched_at, title, creator, read, icon, details) values (:feed_name, :created_at, :updated_at, :fetched_at, :title, :creator, :read, :icon, :details)", params)
+				@db.execute("insert into items (feed_name, created_at, updated_at, fetched_at, title, creator, read, icon, details, url) values (:feed_name, :created_at, :updated_at, :fetched_at, :title, :creator, :read, :icon, :details, :url)", params)
 				set_fetched_at(feed_name: feed_name)
 			end
 		end
@@ -83,7 +84,7 @@ class RubyDash
 			close_database
 			File.delete(path) if File.file?(path) # Quickest way to wipe the schema in SQlite
 			db = open_database(path)
-			db.execute "CREATE TABLE items(feed_name text, created_at datetime, updated_at datetime, fetched_at datetime, title text, creator text, read boolean, icon text, details text);"
+			db.execute "CREATE TABLE items(feed_name text, created_at datetime, updated_at datetime, fetched_at datetime, title text, creator text, read boolean, icon text, details text, url text);"
 			db.execute "CREATE TABLE fetch_histories(feed_name text PRIMARY KEY, fetched_at datetime, failure_count integer, last_failure_detail text);"
 			db.execute "CREATE TABLE schema_version(version integer);"
 			db.execute "INSERT INTO schema_version(version) VALUES (#{current_schema_version});"

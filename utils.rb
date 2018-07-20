@@ -10,6 +10,10 @@ class String
 	end
 
 	def printable_length
-		self.gsub(/\e\]8;;.*?\a/, "").gsub(/[^[:print:]]/, "").length
+		printable.length
+	end
+
+	def printable
+		self.gsub(/\e\]8;;.*?\a/, "").gsub(/[^[:print:]]/, "")
 	end
 end
