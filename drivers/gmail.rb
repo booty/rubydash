@@ -43,7 +43,8 @@ class GmailDriver < Driver
 				"details" => msg.snippet,
 				"read" => !msg.label_ids.include?("UNREAD"),
 				"icon" => msg.label_ids.include?("UNREAD") ? "!" : nil,
-				"creator" => get_header_value(headers, "From")
+				"creator" => get_header_value(headers, "From"),
+				"url" => "https://mail.google.com/mail/u/0/#inbox/#{msg.thread_id}",
 			}
 			RubyDash::Item.new(
 				stuff: stuff
