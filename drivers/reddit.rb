@@ -34,7 +34,7 @@ private
 		when "username mention"
 			["Mentioned in #{msg.subreddit_name_prefixed}", "u/#{msg.author.name}"]
 		else
-			["✉️  #{msg.subject}", "u/#{msg.author}"]
+			["✉ #{msg.subject}", "u/#{msg.author}"]
 		end
 	end
 
