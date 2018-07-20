@@ -9,6 +9,7 @@ require "colorize"
 require "terminfo"
 require "logger"
 
+require_relative "utils"
 require_relative "item"
 require_relative "cache"
 require_relative "feed"

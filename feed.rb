@@ -33,11 +33,13 @@ class RubyDash
 
 	private
 		def header
-			left_side = "#{PADDING_CHAR * (ITEM_INDENT_SPACES * 4)} #{@name} "
+			name = @config["Url"] ? @config["Url"].hyperlink(label: @name) : @name
+
+			left_side = "#{PADDING_CHAR * (ITEM_INDENT_SPACES * 4)} #{name} "
 			fetched_time_ago = distance_of_time_in_words(fetched_at, Time.current, DOTIW_OPTIONS.call)
 			next_fetch = distance_of_time_in_words(next_fetch_time, Time.current, DOTIW_OPTIONS.call)
 			right_side = " #{fetched_time_ago} ago / in #{next_fetch}"
-			padding_width = OUTPUT_WIDTH - left_side.length - right_side.length
+			padding_width = OUTPUT_WIDTH - left_side.printable_length - right_side.length
 			"#{left_side}#{PADDING_CHAR * padding_width}#{right_side}"
 		end
 
