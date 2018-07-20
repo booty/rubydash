@@ -9,6 +9,8 @@ class RedditDriver < Driver
 
 	def fetch_items_uncached
 		my_messages.first(@config["Quantity"]).map do |msg|
+			url = "https://old.reddit.com#{msg.context}" if msg.context?
+
 			title, creator = title_and_creator(msg)
 			stuff = {
 				"title" => title,
@@ -16,7 +18,8 @@ class RedditDriver < Driver
 				"details" => msg.body,
 				"read" => !msg.new?,
 				"icon" => msg.new? ? "!" : nil,
-				"creator" => creator
+				"creator" => creator,
+				"url" => url,
 			}
 			RubyDash::Item.new(
 				stuff: stuff
@@ -25,6 +28,7 @@ class RedditDriver < Driver
 	end
 
 private
+
 	def title_and_creator(msg)
 		case (msg.title rescue msg.subject)
 		when "comment reply"
