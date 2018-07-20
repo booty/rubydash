@@ -1,13 +1,101 @@
----
-Feeds:
-  My First Feed:
-    Type: gmail
-    AuthKey: 123
-    AuthSecret: ABC
-    MinimumWaitSeconds: 10
-  My Second Feed:
-    Type: rss
-    Url: http://slashdot.org
-    AuthKey: 123
-    AuthSecret: ABC
-    MinimumWaitSeconds: 10
+
+# --- Intro ---
+#
+#
+# Your config.yml file gives you a lot of flexibility when it comes to what
+# rubydash displays.
+#
+# The key/value pairs required by each driver will vary, but some are standard.
+#
+#     Type:
+#
+#         This tells rubydash which driver to use in order to fetch data.
+#         Corresponds to files in rubydash/drivers. A type of "foo" would tell
+#         rubydash to look for a class named FooDriver, presumably found at
+#         rubydash/drivers/foo.rb
+#
+#     MinimumWaitSeconds:
+#
+#         Rubydash will wait AT LEAST this long between fetches. Use it to avoid
+#         falling afoul of API throttling limits. If less than this many seconds
+#         have elapsed, rubydash will pull cached data from its local sqlite store.
+#
+#         Developer protip: set it to 0 when you're testing the functionality you're
+#         working on
+#
+#     Quantity:
+#
+#         How many items to display from each source.
+#
+# --- Sample configs ---
+#
+#     Here's a simple example of a config.yml that displays one Twitter account, one
+#     Reddit account, and one Gmail account.
+#
+#     ---
+#     Feeds:
+#       My Awesome Twitter Account:
+#         Type: twitter
+#         Username: JohnDoe
+#         ConsumerKey: blahblahblah
+#         ConsumerSecret: blahblahblah
+#         AccessToken: blahblahblah
+#         AccessSecret: blahblahblah
+#         MinimumWaitSeconds: 1200
+#         Quantity: 5
+#         Url: https://twitter.com/i/notifications
+#       Reddit:
+#         Type: reddit
+#         ClientId: blahblahblah
+#         Secret: blahblahblah
+#         Username: JohnDoe
+#         Password: blahblahblah
+#         MinimumWaitSeconds: 600
+#         Quantity: 3
+#         Url: https://old.reddit.com/message/inbox/
+#       Gmail:
+#         Type: gmail
+#         AuthKey: blahblahblah.apps.googleusercontent.com
+#         AuthSecret: blahblahblah
+#         MinimumWaitSeconds: 120
+#         Label: "CATEGORY_PERSONAL"
+#         Url: https://mail.google.com/mail/u/0/#inbox
+#         Quantity: 10
+#
+#
+# Note that you can have multiple instances of each type. Suppose you're a Reddit
+# maniac with ten different fake accounts. Rubydash will facillitate your devious ways.
+# Your friends will judge you, but Rubydash won't.
+#
+# This sort of functionality would also be useful if you, for example, have a "personal"
+# and "professional" Twitter account and you'd like a way to monitor both of them.
+#
+#     ---
+#     Feeds:
+#       My Real Reddit Account:
+#         Type: reddit
+#         ClientId: blahblahblah
+#         Secret: blahblahblah
+#         Username: Unidan
+#         Password: blahblahblah
+#         MinimumWaitSeconds: 600
+#         Quantity: 3
+#         Url: https://old.reddit.com/message/inbox/
+#       My Fake Account 1:
+#         Type: reddit
+#         ClientId: blahblahblah
+#         Secret: blahblahblah
+#         Username: FakeUnidan
+#         Password: blahblahblah
+#         MinimumWaitSeconds: 600
+#         Quantity: 3
+#         Url: https://old.reddit.com/message/inbox/
+#       Another Fake:
+#         Type: reddit
+#         ClientId: blahblahblah
+#         Secret: blahblahblah
+#         Username: FakeUnidan2
+#         Password: blahblahblah
+#         MinimumWaitSeconds: 600
+#         Quantity: 3
+#         Url: https://old.reddit.com/message/inbox/
