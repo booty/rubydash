@@ -41,20 +41,27 @@ private
 		result << "re:#{status.retweet_count}" if status.retweet_count.positive?
 		result << "lk:#{status.favorite_count}" if status.favorite_count.positive?
 		return nil if result.none?
-		result.join(", ")
+		"#{result.join(', ')} ∙ "
 	end
 
 	def details(status)
 		result = []
-		result << "Retweeted: #{user_names_who_retweeted(status.id)}" if status.retweet_count.positive?
+		result << user_names_who_retweeted(status)
 		result << "Liked: #{user_names_who_liked(status.id)}" if status.favorite_count.positive?
+		result.compact!
 		return nil if result.none?
 		result.join(" | ")
 	end
 
 	# Kludge due to API limitations
-	def user_names_who_retweeted(id)
-		(HTTP.get("https://twitter.com/i/activity/retweeted_popup?id=#{id}").body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq - [@config["Username"]]).join(", ")
+	def user_names_who_retweeted(status)
+		return nil unless status.retweet_count.positive?
+		url = "https://twitter.com/i/activity/retweeted_popup?id=#{status.id}"
+		original_tweeter = status&.retweeted_status&.user&.screen_name
+		names_to_reject = [original_tweeter, @config["Username"]].freeze
+		names = HTTP.get(url).body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq.compact - names_to_reject
+		return nil if names.none?
+		"Retweeted: #{names.join(', ')}"
 	end
 
 	# Kludge due to API limitations
