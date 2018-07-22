@@ -33,7 +33,7 @@ class GmailDriver < Driver
 		# Subject, To, X-Email-Type-Id, X-Forwarded-For, X-Forwarded-To, X-Gm-Message-State,
 		# X-Google-DKIM-Signature, X-Google-Smtp-Source, X-MaxCode-Template, X-PP-Email-transmission-Id,
 		# X-PP-REQUESTED-TIME, X-Received, X-Received, X-Received
-		msgs_metadata = service.list_user_messages("me", max_results: 3, label_ids: @config["Label"]).messages
+		msgs_metadata = service.list_user_messages("me", max_results: @config["Quantity"], label_ids: @config["Label"]).messages
 		msgs_metadata.map do |msg_metadata|
 			msg = service.get_user_message(user_id, msg_metadata.id, format: "metadata", metadata_headers: %w[Subject From])
 			headers = msg.payload.headers
