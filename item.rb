@@ -20,15 +20,15 @@ class RubyDash
 			@url = stuff["url"]
 		end
 
-		def render
+		def render(feed_config:)
 			fake_me if USE_FAKER
-			render_item
-			render_item_details
+			render_item(feed_config: feed_config)
+			render_item_details(feed_config: feed_config)
 		end
 
 	private
 
-		def render_item
+		def render_item(feed_config:)
 			dotiw = distance_of_time_in_words(Time.now, Time.at(@created_at), DOTIW_OPTIONS.call)
 			title = if @url
 								@url.hyperlink(label: @title)
@@ -36,7 +36,8 @@ class RubyDash
 								@title
 							end
 			left_side = "#{(@icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{title}"
-			right_side = "#{@creator} (#{dotiw})"
+			creator = @creator if feed_config["ShowCreator"]
+			right_side = "#{creator} (#{dotiw})".strip
 
 			if left_side.printable_length + right_side.length > OUTPUT_WIDTH
 				right_side = "#{@creator.truncate(30, separator: /[\s\@\.]/, omission: '…')} (#{dotiw})"
@@ -46,12 +47,14 @@ class RubyDash
 				left_side = left_side.truncate(OUTPUT_WIDTH - right_side.length, separator: " ", omission: "… ")
 			end
 
-			print left_side#.white.bold
+			print left_side
 			puts right_side.rjust(OUTPUT_WIDTH - left_side.printable_length)
 		end
 
-		def render_item_details
+		def render_item_details(feed_config:)
 			return unless @details
+			return if feed_config["NeverShowDetails"]
+			return if feed_config["OnlyShowDetailsIfUnread"] && @read
 			# HTML.fragment renders HTML entities; common in email bodies
 			details = Nokogiri::HTML.fragment(@details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES * 2, separator: ' ', omission: '… ')
 			puts "#{' ' * (ITEM_INDENT_SPACES * 2 + 1)}#{details}".cyan.italic

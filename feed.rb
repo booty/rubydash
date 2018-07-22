@@ -6,12 +6,22 @@ require "dotiw"
 class RubyDash
 	class Feed
 		PADDING_CHAR = "⎯"
+		DEFAULT_CONFIG = {
+			"ShowHeader" => true,
+			"AddBlankLineBeforeItems" => true,
+			"AddBlankLineAfterItems" => true,
+			"ShowCreator" => true,
+			"NeverShowDetails" => false,
+			"OnlyShowDetailsIfUnread" => false,
+		}
+
 		include ActionView::Helpers::DateHelper
 
 		class FetchError < StandardError; end
 
 		def initialize(name:, config:, cache:)
 			@name, @config, @cache = name, config, cache
+			@config.reverse_merge!(DEFAULT_CONFIG)
 		end
 
 		def fetch
@@ -25,10 +35,12 @@ class RubyDash
 		end
 
 		def render
-			puts header
-			puts "\n"
-			@cache.get_items(feed_name: @name).each(&:render)
-			puts "\n"
+			puts header if @config["ShowHeader"]
+			puts "\n" if @config["AddBlankLineBeforeItems"]
+			@cache.get_items(feed_name: @name).each do |item|
+				item.render(feed_config: @config)
+			end
+			puts "\n" if @config["AddBlankLineAfterItems"]
 		end
 
 	private
