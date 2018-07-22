@@ -8,7 +8,7 @@ It'd be awfully nice to watch them from a single terminal window.
 
 That's rubydash's job!
 
-![rubydash demo](screenshots/rubydash.png?raw=true "rubydash")
+![rubydash demo](screenshots/rubydash-with-formatting.png?raw=true "rubydash")
 
 ## What's It Do?
 
@@ -45,9 +45,10 @@ There's a lot to do, but right now it's usable for me in a basic way.
 
 ## High-Priority TODOs
 
-1. More drivers for more data sources. Next on my list: RSS, Github, Darksky
-2. Disable hyperlinks for terminal applications that don't support them (at least support a command line arg for this if we can't auto detect)
-3. Configurable display modes ("full", "compact", "widget", etc) on a per-data-source basis. One example use case would be a "weather widget" or a system CPU usage monitor that would take up only a single line, and not have its own heading (ie, "widget mode"?)
-4. Figure out how to run this in a loop. My initial intent was to run it in a loop with `watch -n3 --color bundle exec ruby rubydash.rb` but it seems `watch` chokes on the color codes.
-5. A more sane project structure (should probably be a gem?)
-6. Better "new user" experience... walk users through setting up `config.yml`, inform them of required fields that are missing, etc.
+1. More drivers for more data sources. Next on my list: ~~RSS~~, Github, Darksky
+1. Disable hyperlinks for terminal applications that don't support them (at least support a command line arg for this if we can't auto detect)
+1. Configurable display modes ("full", "compact", "widget", etc) on a per-data-source basis. One example use case would be a "weather widget" or a system CPU usage monitor that would take up only a single line, and not have its own heading (ie, "widget mode"?) **[in progress]**
+1. Figure out how to run this in a loop. My initial intent was to run it in a loop with `watch -n3 --color bundle exec ruby rubydash.rb` but it seems `watch` chokes on the color codes.
+1. A more sane project structure (should probably be a gem?)
+1. Better "new user" experience... walk users through setting up `config.yml`, inform them of required fields that are missing, etc.
+1. Fetch data in parallel w/ multiple threads? Not sure if this would work w/ Sqlite. Also not sure if this is needed. While fetches are slow, they are also meant to be quite occasional...

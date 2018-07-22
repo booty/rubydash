@@ -12,7 +12,10 @@ class RubyDash
 		def initialize(stuff:)
 			@title = stuff["title"].gsub(/\n/, " ").gsub(/\s+/, " ")
 			@created_at = stuff["created_at"]
+			# Sqlite doesn't have bools
 			@read = stuff["read"]
+			@read = true if @read == 1
+			@read = false if @read == 0
 			@updated_at = stuff["updated_at"]
 			@details = stuff["details"].gsub(/\n/, " ").gsub(/\s+/, " ") if stuff["details"]
 			@icon = stuff["icon"]
