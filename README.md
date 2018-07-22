@@ -8,6 +8,8 @@ It'd be awfully nice to watch them from a single terminal window.
 
 That's rubydash's job!
 
+![rubydash demo](screenshots/rubydash.png?raw=true "rubydash")
+
 ## What's It Do?
 
 In a nutshell, rubydash:
@@ -19,6 +21,8 @@ In a nutshell, rubydash:
 Code for each of the data sources lives in `drivers/`. Right now, Reddit, Twitter, and Gmail are supported. The plan is to support many more of these data sources. Adding a new data source is as simple as adding a new file & driver class to `drivers/` and perhaps updating the Gemfile.
 
 My current `~/.rubydash/config.yml`:
+
+![rubydash config.yml](screenshots/config-yml.png?raw=true "rubydash config.yml")
 
 ## This Is Very "Beta"
 
