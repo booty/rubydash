@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'redd'
+require "redd"
 
 class RedditDriver < Driver
 	def initialize(config)
