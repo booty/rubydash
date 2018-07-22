@@ -19,3 +19,5 @@ gem "sqlite3", "~> 1.3"
 
 gem "redd", "~> 0.8", git: "https://github.com/booty/redd.git"
 gem "twitter", "~> 6.2"
+
+gem "faker", "~> 1.9"

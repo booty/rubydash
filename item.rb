@@ -21,6 +21,7 @@ class RubyDash
 		end
 
 		def render
+			fake_me if USE_FAKER
 			render_item
 			render_item_details
 		end
@@ -54,6 +55,68 @@ class RubyDash
 			# HTML.fragment renders HTML entities; common in email bodies
 			details = Nokogiri::HTML.fragment(@details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES * 2, separator: ' ', omission: '… ')
 			puts "#{' ' * (ITEM_INDENT_SPACES * 2 + 1)}#{details}".cyan.italic
+		end
+
+		# OK. Fake_me, fake_string, etc are very kludgy
+		#
+		# Use case: very roughly sanitize displayed data for
+		# development purposes. (Suppose you want to share a screenshot
+		# with another deveoper, but you don't want to screencap and
+		# share your personal bizness)
+
+		def fake_me
+			@title = fake_string(@title)
+			@details = fake_string(@details)
+			@creator = fake_string(@creator)
+		end
+
+		def fake_string(str)
+			return if str.nil?
+			original_words = str.split
+			faker_words = faker_words()
+			new_words = []
+			is_email = false
+			original_words.each_with_index do |word, i|
+				new_words << if word =~ /^@/
+										 	 fake_handle("@")
+										 elsif word =~ /u\//
+										 	 fake_handle("u/")
+										 elsif word =~ /r\//
+										 	 fake_subreddit
+										 elsif ["Liked:", "Retweeted:", "Comment", "reply", "from", "Mentioned", "✉", "Post", "re:", "RE:", "|"].include?(word)
+										 	 word
+										 elsif word =~ /<.*?@.*?>/
+										 	 is_email = true
+										 	 "boop!"
+										 else
+										 	 faker_words[i]
+										 end
+			end
+			if is_email
+				return "#{Faker::Name.name} <#{Faker::Internet.safe_email}>"
+			end
+			if new_words.length > 2
+				new_words.join(" ") + ["!",".",".","?",".","...","..."].sample
+			else
+				new_words.join(" ")
+			end
+		end
+
+		def fake_subreddit
+			"r/#{Faker::Dune.planet.downcase}"
+		end
+
+		def fake_handle(prefix)
+			"#{prefix}#{Faker::Hipster.words(1..3).map { |s| s2 = s.dup; s2[0] = s2[0].upcase; s2 }.join}"
+		end
+
+		def faker_words
+			result = []
+			1.upto(10) do
+				result << Faker::Dune.quote
+				result << " "
+			end
+			result.join(" ").split
 		end
 	end
 end

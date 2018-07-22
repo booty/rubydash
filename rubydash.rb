@@ -8,6 +8,7 @@ require "action_view"
 require "colorize"
 require "terminfo"
 require "logger"
+require "faker"
 
 require_relative "utils"
 require_relative "item"
@@ -27,6 +28,9 @@ ITEM_INDENT_SPACES = 2
 OUTPUT_WIDTH = TermInfo.screen_size[1] - ITEM_INDENT_SPACES
 DEFAULT_ICON = ""
 LOGGER = Logger.new("/tmp/rubydash.log")
+
+# For development use; such as getting fake data for use in screenshots, etc
+USE_FAKER = ARGV.include?("--faker")
 
 # This is horrible and I promise to replace it with something better
 # We can't simply store the hash in a constant and reuse it because
