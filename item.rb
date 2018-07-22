@@ -35,7 +35,7 @@ class RubyDash
 							else
 								@title
 							end
-			left_side = "#{(@icon || DEFAULT_ICON).rjust(ITEM_INDENT_SPACES)} #{title}"
+			left_side = "#{(@icon || DEFAULT_ICON).rjust(1)} #{title}"
 			creator = @creator if feed_config["ShowCreator"]
 			right_side = "#{creator} (#{dotiw})".strip
 
@@ -57,7 +57,7 @@ class RubyDash
 			return if feed_config["OnlyShowDetailsIfUnread"] && @read
 			# HTML.fragment renders HTML entities; common in email bodies
 			details = Nokogiri::HTML.fragment(@details).to_s.truncate(OUTPUT_WIDTH - ITEM_INDENT_SPACES * 2, separator: ' ', omission: '… ')
-			puts "#{' ' * (ITEM_INDENT_SPACES * 2 + 1)}#{details}".cyan.italic
+			puts "#{' ' * (ITEM_INDENT_SPACES * 2)}#{details}".cyan.italic
 		end
 
 		# OK. Fake_me, fake_string, etc are very kludgy
