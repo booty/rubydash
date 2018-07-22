@@ -17,7 +17,7 @@ class TwitterDriver < Driver
 				"created_at" => status.created_at,
 				"read" => nil,
 				"icon" => nil,
-				"creator" => @config["Username"]
+				"creator" => "@#{@config["Username"]}"
 			}
 
 			stuff["details"] = details(status)
@@ -61,12 +61,12 @@ private
 		names_to_reject = [original_tweeter, @config["Username"]].freeze
 		names = HTTP.get(url).body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq.compact - names_to_reject
 		return nil if names.none?
-		"Retweeted: #{names.join(', ')}"
+		"Retweeted: #{names.map { |s| "@#{s}" }.join(', ')}"
 	end
 
 	# Kludge due to API limitations
 	def user_names_who_liked(id)
-		(HTTP.get("https://twitter.com/i/activity/favorited_popup?id=#{id}").body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq - [@config["Username"]]).join(", ")
+		(HTTP.get("https://twitter.com/i/activity/favorited_popup?id=#{id}").body.to_s.scan(/data-screen-name=\\"(.*?)\\"/).flatten.uniq - [@config["Username"]]).map { |s| "@#{s}" }.join(", ")
 	end
 
 	# Kludge due to API limitations
