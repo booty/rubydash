@@ -52,3 +52,4 @@ There's a lot to do, but right now it's usable for me in a basic way.
 1. A more sane project structure (should probably be a gem?)
 1. Better "new user" experience... walk users through setting up `config.yml`, inform them of required fields that are missing, etc.
 1. Fetch data in parallel w/ multiple threads? Not sure if this would work w/ Sqlite. Also not sure if this is needed. While fetches are slow, they are also meant to be quite occasional...
+1. Better error handling (errors should be more visible)
