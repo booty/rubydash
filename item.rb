@@ -93,14 +93,12 @@ class RubyDash
 										 	 word
 										 elsif word =~ /<.*?@.*?>/
 										 	 is_email = true
-										 	 "boop!"
 										 else
 										 	 faker_words[i]
 										 end
 			end
-			if is_email
-				return "#{Faker::Name.name} <#{Faker::Internet.safe_email}>"
-			end
+
+			return "#{Faker::Name.name} <#{Faker::Internet.safe_email}>" if is_email
 			if new_words.length > 2
 				new_words.join(" ") + ["!",".",".","?",".","...","..."].sample
 			else
