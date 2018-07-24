@@ -70,10 +70,8 @@ class RubyDash
 		@config = load_validated_config
 		Dir.mkdir(DATA_PATH) unless File.directory?(DATA_PATH)
 		initialize_config_sample_if_needed
-		unless @drivers
-			@drivers = load_drivers
-			LOGGER.info "Loaded drivers: #{driver_names.join(', ')}"
-		end
+		@drivers = load_drivers
+		LOGGER.info "Loaded drivers: #{driver_names.join(', ')}"
 		@cache = Cache.new(path: CACHE_FILE_PATH, current_schema_version: CACHE_SCHEMA_VERSION)
 	end
 
@@ -112,17 +110,15 @@ private
 		if config["Feeds"].nil? || config["Feeds"].empty?
 			raise "The Feeds section of your configuration file is empty or missing. #{SEE_CONFIG_SAMPLE_MESSAGE}"
 		end
-		# TODO: check that the Type of each feed corresponds to an extent driver
 	end
 end
 
-# puts String.colors                       # return array of all possible colors names
-# puts String.modes                        # return array of all possible modes
-# String.color_samples                # displays color samples in all combinations
-
+dashboard = RubyDash.new
 begin
-	dashboard = RubyDash.new
+	system "clear" or system "cls" if REPEAT_INTERVAL_SECONDS
 	dashboard.fetch
 	dashboard.render
 	sleep REPEAT_INTERVAL_SECONDS if REPEAT_INTERVAL_SECONDS
+rescue Interrupt => e # Catch this so we don't emit a stacktrace
+	exit
 end while !REPEAT_INTERVAL_SECONDS.nil?
