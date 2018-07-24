@@ -32,6 +32,16 @@ LOGGER = Logger.new("/tmp/rubydash.log")
 # For development use; such as getting fake data for use in screenshots, etc
 USE_FAKER = ARGV.include?("--faker")
 
+# Passing "-tnnn" where n is an integer will re-fetch data and re-render
+# rubydash's output every n seconds
+#
+# e.g. "ruby rubydash.rb -t42" to refresh every 42 seconds
+#
+# Note that no individual feed will be fetched more often than its
+# MinimumWaitSeconds value from config.yml. So it's safe to use small
+# values for n here; you won't blow up your API limits
+REPEAT_INTERVAL_SECONDS = /-t(\d+)/.match(ARGV.join(" "))&.send("[]", 1)&.to_i
+
 # This is horrible and I promise to replace it with something better
 # We can't simply store the hash in a constant and reuse it because
 # the dotiw gem calls #delete on the options hash you pass to it,
@@ -60,8 +70,10 @@ class RubyDash
 		@config = load_validated_config
 		Dir.mkdir(DATA_PATH) unless File.directory?(DATA_PATH)
 		initialize_config_sample_if_needed
-		@drivers = load_drivers
-		LOGGER.info "Loaded drivers: #{driver_names.join(', ')}"
+		unless @drivers
+			@drivers = load_drivers
+			LOGGER.info "Loaded drivers: #{driver_names.join(', ')}"
+		end
 		@cache = Cache.new(path: CACHE_FILE_PATH, current_schema_version: CACHE_SCHEMA_VERSION)
 	end
 
@@ -108,6 +120,9 @@ end
 # puts String.modes                        # return array of all possible modes
 # String.color_samples                # displays color samples in all combinations
 
-dashboard = RubyDash.new
-dashboard.fetch
-dashboard.render
+begin
+	dashboard = RubyDash.new
+	dashboard.fetch
+	dashboard.render
+	sleep REPEAT_INTERVAL_SECONDS if REPEAT_INTERVAL_SECONDS
+end while !REPEAT_INTERVAL_SECONDS.nil?
